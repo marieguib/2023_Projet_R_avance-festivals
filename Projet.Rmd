@@ -1,0 +1,7 @@
+---
+title: "Projet R avancé"
+author: "Margaux Bailleul - Marie Guibert"
+date: "`r Sys.Date()`"
+output: pdf_document
+---
+
