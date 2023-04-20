@@ -5,3 +5,15 @@ date: "`r Sys.Date()`"
 output: pdf_document
 ---
 
+# Extraction des données via une API 
+
+```{r}
+url_festival <- "https://data.culture.gouv.fr/api/records/1.0/search/?dataset=panorama-des-festivals&q=&rows=-1&facet=mois_habituel_de_debut&refine.complement_domaine=Musiques amplifiées ou électroniques"
+```
+
+# Extraction des données via un site web 
+
+```{r}
+site_festivals <- "https://martinbeatz.com/festivals-electro-france/"
+```
+
