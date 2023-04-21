@@ -5,6 +5,13 @@ date: "`r Sys.Date()`"
 output: pdf_document
 ---
 
+```{r, message = FALSE}
+library(rvest)
+library(tidyverse)
+```
+
+
+
 # Extraction des données via une API 
 
 ```{r}
@@ -15,5 +22,23 @@ url_festival <- "https://data.culture.gouv.fr/api/records/1.0/search/?dataset=pa
 
 ```{r}
 site_festivals <- "https://martinbeatz.com/festivals-electro-france/"
+```
+
+```{r}
+festival_html <- read_html(site_festivals)
+```
+
+Grâce à cette page web, nous allons pouvoir établir les festivals les plus en vogue. 
+
+```{r}
+listes_festivals <- festival_html |> 
+  html_nodes(xpath = "//h2") |> 
+  html_text()
+# listes_festivals
+
+cat("Les festivals les plus recommandés sont : \n",paste(listes_festivals,","))
+```
+```{r}
+
 ```
 
