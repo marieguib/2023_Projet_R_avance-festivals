@@ -8,17 +8,90 @@ output: pdf_document
 ```{r, message = FALSE}
 library(rvest)
 library(tidyverse)
+library(jsonlite)
+library(maps)
 ```
 
+# Présentation de notre projet
 
+Lors de cette étude, nous avons abordé un sujet qui nous tient particulièrement à coeur : les festivals de musique. En effet, nous avons choisi d'aborder ce sujet et de nous focaliser les festivals de musique amplifiées et électroniques. Ces évènements ont une portée culturelle très importante et un impact économique dans le monde entier.
 
-# Extraction des données via une API 
+# Données provenant de l'API
+
+## Extraction des données via une API
 
 ```{r}
 url_festival <- "https://data.culture.gouv.fr/api/records/1.0/search/?dataset=panorama-des-festivals&q=&rows=-1&facet=mois_habituel_de_debut&refine.complement_domaine=Musiques amplifiées ou électroniques"
 ```
 
-# Extraction des données via un site web 
+Nous utilisons le package **jsonlite** pour extraire les données de l'API.
+
+```{r}
+contenu <- fromJSON(url_festival)
+df_festivals <- contenu$records$fields
+# glimpse(df_festivals)
+```
+
+Tout d'abord, visualisons nos données de façon globale sans effectuer de modifications :
+
+```{r}
+head(df_festivals,3)
+```
+
+## Nettoyage de la base de données
+
+
+Afin de faciliter notre étude, nous avons choisi de supprimer certaines colonnes de la base de données. \
+De plus, certaines informations sont redondantes, nous avons donc choisi de les omettre aussi. Par exemple, le domaine correspond aux musiques actuelles et plus spécialement aux musiques amplifiées ou électroniques (complement_domaine). Ces deux colonnes n'étaient donc pas pertinentes pour la suite de notre analyse.
+
+```{r}
+df_festivals <-df_festivals |> 
+  select(coordonnees_insee,date_de_fin_ancien,nom_departement,departement,periodicite,mois_habituel_de_debut,code_postal,libelle_commune_pour_calcul_cp_insee,date_debut_ancien,region,nom_de_la_manifestation,site_web)
+head(df_festivals,3)
+```
+
+Deuxièmement, nous allons transformer les variables caractères en facteurs pour effectuer des traitements de données et des graphiques plus facilement.
+
+```{r} 
+# str(df_festivals) # permet de connaître le type de chaque variable du dataframe
+df_festivals[c("nom_departement", 
+               "periodicite",
+               "code_postal",
+               "libelle_commune_pour_calcul_cp_insee",
+               "region")] <- lapply(df_festivals[c("nom_departement", 
+               "periodicite",
+               "code_postal",
+               "libelle_commune_pour_calcul_cp_insee",
+               "region")], as.factor)
+# str(df_festivals)
+```
+
+## Quelques graphiques
+
+Tout d'abord, nous allons pouvoir visualiser les régions avec le plus d'évènements. 
+
+```{r}
+# Calculer les fréquences de chaque région
+freq <- table(df_festivals$region)
+
+# Créer un dataframe avec les fréquences de chaque région
+df_regions <- data.frame(table(df_festivals$region)) |> 
+  rename(Region = Var1, Frequence = Freq) |> 
+  mutate(Pourcentage = round(Frequence / sum(Frequence) * 100, 1))
+df_regions
+
+
+ggplot(df_regions, aes(x = Frequence, y = Region)) +
+  geom_bar(stat = "identity") +
+  labs(title = "Fréquence des festivals dans chaque région française", x = "Nombre de festivals", y = "Région") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  guides(fill=FALSE)
+```
+
+
+# Données provenant d'un site web
+
+## Extraction des données via un site web
 
 ```{r}
 site_festivals <- "https://martinbeatz.com/festivals-electro-france/"
@@ -28,7 +101,7 @@ site_festivals <- "https://martinbeatz.com/festivals-electro-france/"
 festival_html <- read_html(site_festivals)
 ```
 
-Grâce à cette page web, nous allons pouvoir établir les festivals les plus en vogue. 
+Grâce à cette page web, nous allons pouvoir établir les festivals les plus en vogue.
 
 ```{r}
 listes_festivals <- festival_html |> 
@@ -38,7 +111,7 @@ listes_festivals <- festival_html |>
 
 cat("Les festivals les plus recommandés sont : \n",paste(listes_festivals,","))
 ```
+
 ```{r}
 
 ```
-
