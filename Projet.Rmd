@@ -109,9 +109,40 @@ listes_festivals <- festival_html |>
   html_text()
 # listes_festivals
 
-cat("Les festivals les plus recommandés sont : \n",paste(listes_festivals,","))
+cat("Les festivals les plus recommandés sont :", paste("\n", listes_festivals))
 ```
+
+Obtention du lieu d'un festival
+
+```{r}
+liste_lieux <- festival_html |> 
+  html_nodes(xpath = "//*[@id='post-2934']/div/div/div/p[9]/text()[1]") |> 
+  html_text()
+liste_lieux
+# Pareil nous intéresse toutes les 5 valeurs, comment tous les récupérer dans une seule liste ? 
+```
+
+Obtention de la date du festival 
+
+```{r}
+liste_dates <- festival_html |> 
+  html_nodes(xpath = "//*[@id='post-2934']/div/div/div/p[9]/strong") |> 
+  html_text()
+liste_dates
+# Nous intéresse toutes les 5 valeurs : 4, 9, 14...
+```
+
+```{r}
+for(fest in listes_festivals){
+  cat("Le festival", fest, "aura lieu les", liste_dates, "à", liste_lieux, "\n")
+}
+```
+
+
+## Mise en relation avec le JSON
 
 ```{r}
 
 ```
+
+
