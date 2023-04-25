@@ -60,6 +60,50 @@ df_festivals[c("nom_departement",
 # str(df_festivals)
 ```
 
+Dans cette étude, nous allons nous concentrer sur les festivals annuels. Nous choisissons donc de ne pas prendre en compte les autres modalités de la variable **periodicite**.
+
+```{r}
+table(df_festivals$periodicite)
+
+
+df_festivals <- df_festivals |> 
+  filter(periodicite == "Annuelle")
+
+# Vérification : 
+# table(df_festivals$periodicite)
+```
+
+
+Nous allons extraire les coordonnées GPS de la variable **coordonnes_insee** afin de la scinder en deux colonnes : latitude et longitude. Cette étape nous permettra de faire plus facilement nos graphiques par la suite. 
+
+```{r}
+# On extraie d'abord les coordonnées et on créé un dataframe contenant la latitude et la longitude
+coord_df <- data.frame(matrix(unlist(sapply(df_festivals$coordonnees_insee, function(x) {
+  unlist(strsplit(paste(x, collapse = ", "), ", "))
+})), ncol = 2, byrow = TRUE))
+
+coord_df <- coord_df |> 
+  rename("longitude" = X1, "latitude" = X2)
+
+# Vérification de la bonne forme du dataframe
+# coord_df
+
+# On concaténe les deux dataframes 
+df_festivals <- bind_cols(df_festivals,coord_df)
+df_festivals
+
+# On supprime la colonne coordonnees_insee car on ne la réutilisera pas 
+df_festivals <- df_festivals |> 
+  select(-coordonnees_insee)
+
+# Vérification
+# df_festivals
+```
+
+
+
+
+
 ## Quelques graphiques
 
 Tout d'abord, nous allons pouvoir visualiser les régions avec le plus d'évènements. 
@@ -81,6 +125,12 @@ ggplot(df_regions, aes(x = Frequence, y = Region)) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
   guides(fill=FALSE)
 ```
+
+
+
+
+
+
 
 
 # Données provenant d'un site web

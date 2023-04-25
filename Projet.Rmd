@@ -10,6 +10,7 @@ library(rvest)
 library(tidyverse)
 library(jsonlite)
 library(maps)
+library(RColorBrewer)
 ```
 
 # Présentation de notre projet
@@ -66,6 +67,49 @@ df_festivals[c("nom_departement",
 # str(df_festivals)
 ```
 
+## Analyses simples
+
+Dans cette étude, nous allons nous concentrer sur les festivals annuels. Nous choisissons donc de ne pas prendre en compte les autres modalités de la variable **periodicite**.
+
+```{r}
+table(df_festivals$periodicite)
+
+
+df_festivals <- df_festivals |> 
+  filter(periodicite == "Annuelle") |> # filtrage pour n'avoir que les festivals annuels
+  select(-periodicite) # suppression de la colonne periodicite car les informations sont redondantes à présent
+
+# Vérification : 
+# table(df_festivals$periodicite)
+```
+
+
+Nous allons extraire les coordonnées GPS de la variable **coordonnes_insee** afin de la scinder en deux colonnes : latitude et longitude. Cette étape nous permettra de faire plus facilement nos graphiques par la suite. 
+
+```{r}
+# On extraie d'abord les coordonnées et on créé un dataframe contenant la latitude et la longitude
+coord_df <- data.frame(matrix(unlist(sapply(df_festivals$coordonnees_insee, function(x) {
+  unlist(strsplit(paste(x, collapse = ", "), ", "))
+})), ncol = 2, byrow = TRUE))
+
+coord_df <- coord_df |> 
+  rename("longitude" = X1, "latitude" = X2)
+
+# Vérification de la bonne forme du dataframe
+# coord_df
+
+# On concaténe les deux dataframes 
+df_festivals <- bind_cols(df_festivals,coord_df)
+# df_festivals
+
+# On supprime la colonne coordonnees_insee car on ne la réutilisera pas 
+df_festivals <- df_festivals |> 
+  select(-coordonnees_insee)
+
+# Vérification
+head(df_festivals,3)
+```
+
 ## Quelques graphiques
 
 Tout d'abord, nous allons pouvoir visualiser les régions avec le plus d'évènements. 
@@ -78,15 +122,25 @@ freq <- table(df_festivals$region)
 df_regions <- data.frame(table(df_festivals$region)) |> 
   rename(Region = Var1, Frequence = Freq) |> 
   mutate(Pourcentage = round(Frequence / sum(Frequence) * 100, 1))
-df_regions
+head(df_regions,3)
 
+# Créer un dataframe qui contient les noms des départements et des régions
+df_regions_dpt <- df_festivals |> 
+  select(nom_departement, region) |> 
+  rename(Departement = nom_departement, Region = region)
 
-ggplot(df_regions, aes(x = Frequence, y = Region)) +
+df_regions_dpt <- left_join(df_regions_dpt,df_regions,by="Region")
+df_regions_dpt
+
+ggplot(df_regions_dpt, aes(x = Frequence, y = Region)) +
   geom_bar(stat = "identity") +
   labs(title = "Fréquence des festivals dans chaque région française", x = "Nombre de festivals", y = "Région") +
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
-  guides(fill=FALSE)
+  guides(fill=FALSE) 
 ```
+
+
+
 
 
 # Données provenant d'un site web
@@ -137,7 +191,6 @@ for(fest in listes_festivals){
   cat("Le festival", fest, "aura lieu les", liste_dates, "à", liste_lieux, "\n")
 }
 ```
-
 
 ## Mise en relation avec le JSON
 
