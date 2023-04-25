@@ -10,78 +10,44 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 ```{r}
-df_festivals <- read.csv("~/Desktop/MAS/Master 1/Semestre 2/Programmation R avancée/Projet_R_avance/panorama-des-festivals-3.csv", sep=";")
-```
-
-```{r}
-head(df_festivals,3)
+library(sf)
 ```
 
 
 ```{r}
-df_festivals <-df_festivals |> 
-  select(coordonnees_insee,date.de.fin.ancien,nom_departement,departement,periodicite,mois_habituel_de_debut,code_postal,libelle_commune_pour_calcul_cp_insee,date_debut_ancien,region,nom.de.la.manifestation,site_web)
-head(df_festivals,3)
+df_festivals <- read.csv("donnees_festivals.csv", sep=";")
+```
+
+Carte
+
+```{r}
+dpt <- read_sf("dpt")
 ```
 
 
-```{r} 
-# str(df_festivals) # permet de connaître le type de chaque variable du dataframe
-df_festivals[c("nom_departement", 
-               "periodicite",
-               "code_postal",
-               "libelle_commune_pour_calcul_cp_insee",
-               "region")] <- lapply(df_festivals[c("nom_departement", 
-               "periodicite",
-               "code_postal",
-               "libelle_commune_pour_calcul_cp_insee",
-               "region")], as.factor)
-# str(df_festivals)
+```{r}
+freq <- table(df_festivals$departement)
+
+# Créer un dataframe avec les fréquences de chaque région
+df_depart <- data.frame(table(df_festivals$departement)) |> 
+  rename(ID_GEOFLA = Var1, Frequence = Freq)|> 
+  mutate(Pourcentage = round(Frequence / sum(Frequence) * 100, 1)) |> 
+  arrange(-Frequence) # on trie selon le nombre de festivals dans la région
+head(df_depart,3)
+df_depart
 ```
 
 ```{r}
-table(df_festivals$periodicite)
-
-
-df_festivals <- df_festivals |> 
-  filter(periodicite == "Annuelle") |> # filtrage pour n'avoir que les festivals annuels
-  select(-periodicite) # suppression de la colonne periodicite 
-                       # car les informations sont redondantes à présent
-
-# Vérification : 
-# table(df_festivals$periodicite)
+france_map_count <- merge(dpt, df_depart, by = "ID_GEOFLA", all.x = TRUE)
+france_map_count
 ```
+
+
 
 ```{r}
-# On extrait d'abord les coordonnées et on créé un dataframe contenant la latitude et la longitude
-coord_df <- data.frame(matrix(unlist(sapply(df_festivals$coordonnees_insee, function(x) {
-  unlist(strsplit(paste(x, collapse = ", "), ", "))
-})), ncol = 2, byrow = TRUE))
-
-coord_df <- coord_df |> 
-  rename("longitude" = X1, "latitude" = X2)
-
-# Vérification de la bonne forme du dataframe
-# coord_df
-
-# On concaténe les deux dataframes 
-df_festivals <- bind_cols(df_festivals,coord_df)
-# df_festivals
-
-# On supprime la colonne coordonnees_insee car on ne la réutilisera pas 
-df_festivals <- df_festivals |> 
-  select(-coordonnees_insee)
-
-# Vérification
-head(df_festivals,3)
+ggplot(france_map_count) + geom_sf(aes(fill=Frequence)) +
+  scale_fill_continuous(low="yellow",high="red")+theme_void()
 ```
-
-FAIRE CARTE
-
-
-
-
-
 
 
 

@@ -9,6 +9,7 @@ output: pdf_document
 library(rvest)
 library(tidyverse)
 library(jsonlite)
+library(sf)
 ```
 
 # Présentation de notre projet
@@ -135,8 +136,34 @@ ggplot(df_regions, aes(x = reorder(Region,-Frequence), y = Frequence)) +
   guides(fill=FALSE) 
 ```
 
+Nous allons maintenant représenter le nombre de festivals par département de France. 
+
+```{r}
+dpt <- read_sf("dpt")
+```
 
 
+```{r}
+freq <- table(df_festivals$departement)
+
+# Créer un dataframe avec les fréquences de chaque région
+df_depart <- data.frame(table(df_festivals$departement)) |> 
+  rename(ID_GEOFLA = Var1, Frequence = Freq)|> 
+  mutate(Pourcentage = round(Frequence / sum(Frequence) * 100, 1)) |> 
+  arrange(-Frequence) # on trie selon le nombre de festivals dans la région
+head(df_depart,3)
+df_depart
+```
+
+```{r}
+france_map_count <- merge(dpt, df_depart, by = "ID_GEOFLA", all.x = TRUE)
+france_map_count
+```
+
+```{r}
+ggplot(france_map_count) + geom_sf(aes(fill=Frequence)) +
+  scale_fill_continuous(low="yellow",high="red")+theme_void()
+```
 
 
 # Données provenant d'un site web
