@@ -171,20 +171,40 @@ liste_lieux
 Obtention de la date du festival 
 
 ```{r}
-liste_dates <- festival_html |> 
-  html_nodes(xpath = "//*[@id='post-2934']/div/div/div/p[9]/strong") |> 
+liste_dates_prov <- festival_html |> 
+  html_nodes(xpath = "//*[@id='post-2934']/div/div/div/p[position()=4 or position()=9 or position()=14 or position()=18]/strong | //*[@id='post-2934']/div/div/div/p[23]/text()[2] | //*[@id='post-2934']/div/div/div/p[position()=27]/strong | //*[@id='post-2934']/div/div/div/p[32]/text()[2] | //*[@id='post-2934']/div/div/div/p[position()=37 or position()=42 or position()=47 or position() = 52]/strong | //*[@id='post-2934']/div/div/div/p[57]/text()[2] | //*[@id='post-2934']/div/div/div/p[position()=62 or position()=67 or position()=72 or position()=77]/strong | //*[@id='post-2934']/div/div/div/p[82]/text()[2] | //*[@id='post-2934']/div/div/div/p[87]/strong") |> 
   html_text()
+liste_dates <- gsub("\nDate : ", "", liste_dates_prov)
 liste_dates
 # Nous intéresse toutes les 5 valeurs : 4, 9, 14...
 ```
 
 ```{r}
-for(fest in listes_festivals){
-  cat("Le festival", fest, "aura lieu les", liste_dates, "à", liste_lieux, "\n")
+for(i in seq_along(listes_festivals)){
+    cat("Le festival", listes_festivals[[i]], "aura lieu les", liste_dates[[i]], "à", liste_lieux, "\n")
 }
 ```
 
-## Mise en relation avec le JSON
+## Zoom sur le Electrobeach Music Festival
+
+Il est le plus grand festival français de musiques électroniques fondé par Alain Ferrand. Il a lieu au Barcarès en face du Lydia, le plus vieux paquebot du monde ensablé depuis 1967. 
+
+```{r}
+site_electro_beach <- "https://fr.wikipedia.org/wiki/Electrobeach_Music_Festival"
+```
+
+```{r}
+electro_beach_html <- read_html(site_electro_beach)
+```
+
+Nous allons maintenant cherche à en savoir un peu plus sur ce festival, en commençant par son histoire.
+
+```{r}
+
+```
+
+
+# Mise en relation entre le JSON et le site des festivals 
 
 ```{r}
 
