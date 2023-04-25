@@ -131,7 +131,7 @@ head(df_regions,3)
 
 ggplot(df_regions, aes(x = reorder(Region,-Frequence), y = Frequence)) +
   geom_bar(stat = "identity") +
-  labs(title = "Fréquence des festivals dans chaque région française", x = "Nombre de festivals", y = "Région") +
+  labs(title = "Fréquence des festivals dans chaque région française", x = "Région", y = "Nombre de festivals") +
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
   guides(fill=FALSE) 
 ```
@@ -178,11 +178,11 @@ df_mois
 ```{r}
 ggplot(df_mois, aes(x = Mois, y = Frequence)) +
   geom_bar(stat = "identity") +
-  labs(title = "Fréquence des festivals dans chaque région française", x = "Nombre de festivals", y = "Région") +
+  labs(title = "Nombre de festivals par mois", x = "Mois", y = "Nombre de festivals") +
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
   guides(fill=FALSE) 
 ```
-
+Nous observons que plus les beaux jours arrivent, plus le nombre de festival augmente. 
 
 # Données provenant d'un site web
 
