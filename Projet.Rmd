@@ -9,7 +9,6 @@ output: pdf_document
 library(rvest)
 library(tidyverse)
 library(jsonlite)
-library(maps)
 ```
 
 # Présentation de notre projet
@@ -26,10 +25,10 @@ url_festival <- "https://data.culture.gouv.fr/api/records/1.0/search/?dataset=pa
 
 Nous utilisons le package **jsonlite** pour extraire les données de l'API.
 
-```{r}
+```{r echo=TRUE, results='hide'}
 contenu <- fromJSON(url_festival)
 df_festivals <- contenu$records$fields
-# glimpse(df_festivals)
+glimpse(df_festivals)
 ```
 
 Tout d'abord, visualisons nos données de façon globale sans effectuer de modifications :
@@ -66,8 +65,6 @@ df_festivals[c("nom_departement",
 # str(df_festivals)
 ```
 
-## Analyses simples
-
 Dans cette étude, nous allons nous concentrer sur les festivals annuels. Nous choisissons donc de ne pas prendre en compte les autres modalités de la variable **periodicite**.
 
 ```{r}
@@ -82,7 +79,6 @@ df_festivals <- df_festivals |>
 # Vérification : 
 # table(df_festivals$periodicite)
 ```
-
 
 Nous allons extraire les coordonnées GPS de la variable **coordonnes_insee** afin de la scinder en deux colonnes : latitude et longitude. Cette étape nous permettra de faire plus facilement nos graphiques par la suite. 
 
@@ -110,21 +106,29 @@ df_festivals <- df_festivals |>
 head(df_festivals,3)
 ```
 
+
+```{r}
+write.table(df_festivals,"donnees_festivals.csv",sep=";")
+```
+
+
+
 ## Quelques graphiques
 
 Tout d'abord, nous allons pouvoir visualiser les régions avec le plus d'évènements. 
 
-```{r}
+```{r message=FALSE}
 # Calculer les fréquences de chaque région
 freq <- table(df_festivals$region)
 
 # Créer un dataframe avec les fréquences de chaque région
 df_regions <- data.frame(table(df_festivals$region)) |> 
   rename(Region = Var1, Frequence = Freq) |> 
-  mutate(Pourcentage = round(Frequence / sum(Frequence) * 100, 1))
+  mutate(Pourcentage = round(Frequence / sum(Frequence) * 100, 1)) |> 
+  arrange(-Frequence) # on trie selon le nombre de festivals dans la région
 head(df_regions,3)
 
-ggplot(df_regions, aes(x = Region, y = Frequence)) +
+ggplot(df_regions, aes(x = reorder(Region,-Frequence), y = Frequence)) +
   geom_bar(stat = "identity") +
   labs(title = "Fréquence des festivals dans chaque région française", x = "Nombre de festivals", y = "Région") +
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
@@ -176,7 +180,6 @@ liste_dates_prov <- festival_html |>
   html_text()
 liste_dates <- gsub("\nDate : ", "", liste_dates_prov)
 liste_dates
-# Nous intéresse toutes les 5 valeurs : 4, 9, 14...
 ```
 
 ```{r}
