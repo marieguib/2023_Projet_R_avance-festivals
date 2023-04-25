@@ -10,7 +10,6 @@ library(rvest)
 library(tidyverse)
 library(jsonlite)
 library(maps)
-library(RColorBrewer)
 ```
 
 # Présentation de notre projet
@@ -77,7 +76,8 @@ table(df_festivals$periodicite)
 
 df_festivals <- df_festivals |> 
   filter(periodicite == "Annuelle") |> # filtrage pour n'avoir que les festivals annuels
-  select(-periodicite) # suppression de la colonne periodicite car les informations sont redondantes à présent
+  select(-periodicite) # suppression de la colonne periodicite 
+                       # car les informations sont redondantes à présent
 
 # Vérification : 
 # table(df_festivals$periodicite)
@@ -87,7 +87,7 @@ df_festivals <- df_festivals |>
 Nous allons extraire les coordonnées GPS de la variable **coordonnes_insee** afin de la scinder en deux colonnes : latitude et longitude. Cette étape nous permettra de faire plus facilement nos graphiques par la suite. 
 
 ```{r}
-# On extraie d'abord les coordonnées et on créé un dataframe contenant la latitude et la longitude
+# On extrait d'abord les coordonnées et on créé un dataframe contenant la latitude et la longitude
 coord_df <- data.frame(matrix(unlist(sapply(df_festivals$coordonnees_insee, function(x) {
   unlist(strsplit(paste(x, collapse = ", "), ", "))
 })), ncol = 2, byrow = TRUE))
@@ -124,15 +124,7 @@ df_regions <- data.frame(table(df_festivals$region)) |>
   mutate(Pourcentage = round(Frequence / sum(Frequence) * 100, 1))
 head(df_regions,3)
 
-# Créer un dataframe qui contient les noms des départements et des régions
-df_regions_dpt <- df_festivals |> 
-  select(nom_departement, region) |> 
-  rename(Departement = nom_departement, Region = region)
-
-df_regions_dpt <- left_join(df_regions_dpt,df_regions,by="Region")
-df_regions_dpt
-
-ggplot(df_regions_dpt, aes(x = Frequence, y = Region)) +
+ggplot(df_regions, aes(x = Region, y = Frequence)) +
   geom_bar(stat = "identity") +
   labs(title = "Fréquence des festivals dans chaque région française", x = "Nombre de festivals", y = "Région") +
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
