@@ -49,6 +49,16 @@ ggplot(france_map_count) + geom_sf(aes(fill=Frequence)) +
   scale_fill_continuous(low="yellow",high="red")+theme_void()
 ```
 
+Nous allons maintenant nous intéresser au nombre de festivals par mois : 
+
+```{r}
+freq <- table(df_festivals$mois_habituel_de_debut)
+
+df_mois <- data.frame(table(df_festivals$mois_habituel_de_debut)) |> 
+  rename(Region = Var1, Frequence = Freq) |> 
+  mutate(Pourcentage = round(Frequence / sum(Frequence) * 100, 1))
+df_mois
+```
 
 
 

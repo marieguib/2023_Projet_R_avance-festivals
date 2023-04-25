@@ -142,17 +142,13 @@ Nous allons maintenant représenter le nombre de festivals par département de F
 dpt <- read_sf("dpt")
 ```
 
-
 ```{r}
 freq <- table(df_festivals$departement)
 
-# Créer un dataframe avec les fréquences de chaque région
 df_depart <- data.frame(table(df_festivals$departement)) |> 
   rename(ID_GEOFLA = Var1, Frequence = Freq)|> 
-  mutate(Pourcentage = round(Frequence / sum(Frequence) * 100, 1)) |> 
-  arrange(-Frequence) # on trie selon le nombre de festivals dans la région
+  mutate(Pourcentage = round(Frequence / sum(Frequence) * 100, 1))
 head(df_depart,3)
-df_depart
 ```
 
 ```{r}
@@ -163,6 +159,28 @@ france_map_count
 ```{r}
 ggplot(france_map_count) + geom_sf(aes(fill=Frequence)) +
   scale_fill_continuous(low="yellow",high="red")+theme_void()
+```
+
+Cette carte est bien en adéquation avec les données de région que nous avons vu auparavant. En effet, le département avec le plus de festivals est le département de la Hauute-Savoie et est bien situé en Auvergne-Rhône-Alpes. 
+
+Nous allons maintenant nous intéresser au nombre de festivals par mois : 
+
+
+```{r}
+freq <- table(df_festivals$mois_habituel_de_debut)
+
+df_mois <- data.frame(table(df_festivals$mois_habituel_de_debut)) |> 
+  rename(Mois = Var1, Frequence = Freq) |> 
+  mutate(Pourcentage = round(Frequence / sum(Frequence) * 100, 1))
+df_mois
+```
+
+```{r}
+ggplot(df_mois, aes(x = Mois, y = Frequence)) +
+  geom_bar(stat = "identity") +
+  labs(title = "Fréquence des festivals dans chaque région française", x = "Nombre de festivals", y = "Région") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  guides(fill=FALSE) 
 ```
 
 
@@ -193,10 +211,10 @@ Obtention du lieu d'un festival
 
 ```{r}
 liste_lieux <- festival_html |> 
-  html_nodes(xpath = "//*[@id='post-2934']/div/div/div/p[9]/text()[1]") |> 
+  html_nodes(xpath = "//*[@id='post-2934']/div/div/div/p[position()=4 or position()=9 or position()=14 or position()=18 or position()=23 or position()=27 or position()=32 or position()=37 or position()=42 or position()=47 or position()=52 or position()=57 or position()=62 or position()=67 or position()=72 or position()=77 or position()=82 or position()=87]/text()[1]") |> 
   html_text()
+liste_lieux <- gsub("Lieu : ", "", liste_lieux)
 liste_lieux
-# Pareil nous intéresse toutes les 5 valeurs, comment tous les récupérer dans une seule liste ? 
 ```
 
 Obtention de la date du festival 
@@ -211,7 +229,7 @@ liste_dates
 
 ```{r}
 for(i in seq_along(listes_festivals)){
-    cat("Le festival", listes_festivals[[i]], "aura lieu les", liste_dates[[i]], "à", liste_lieux, "\n")
+    cat("Le festival", listes_festivals[[i]], "aura lieu les", liste_dates[[i]], "à", liste_lieux[[i]], "\n")
 }
 ```
 
