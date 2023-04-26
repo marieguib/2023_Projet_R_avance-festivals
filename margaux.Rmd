@@ -61,4 +61,131 @@ df_mois
 ```
 
 
+## Extraction des données via un site web
+
+```{r}
+site_festivals <- "https://martinbeatz.com/festivals-electro-france/"
+```
+
+```{r}
+festival_html <- read_html(site_festivals)
+```
+
+Grâce à cette page web, nous allons pouvoir établir les festivals les plus en vogue.
+
+```{r}
+listes_festivals <- festival_html |> 
+  html_nodes(xpath = "//h2") |> 
+  html_text()
+# listes_festivals
+
+cat("Les festivals les plus recommandés sont :", paste("\n", listes_festivals))
+```
+
+## Zoom sur le Electrobeach Music Festival
+
+Il est le plus grand festival français de musiques électroniques fondé par Alain Ferrand. Il a lieu au Barcarès en face du Lydia, le plus vieux paquebot du monde ensablé depuis 1967. 
+
+```{r}
+site_electro_beach <- "https://fr.wikipedia.org/wiki/Electrobeach_Music_Festival"
+```
+
+```{r}
+electro_beach_html <- read_html(site_electro_beach)
+```
+
+### L'histoire de l'Electro Beach Festival 
+
+Nous allons maintenant cherche à en savoir un peu plus sur ce festival, en commençant par son histoire.
+
+```{r}
+
+```
+
+### La fréquentation au fur et à mesure des années
+
+```{r}
+
+```
+
+
+### Toutes leurs programmations passées 
+
+```{r}
+
+```
+
+
+### Les logos d'ElectroBeach entre 2011 et 2016
+
+J'AI PRIS SUR WIKIPÉDIA MAIS LA QUALITÉ EST NULLE, VOIR SI BESOIN DE PRENDRE SUR UN AUTRE SITE POUR MEILLEURE QUALITÉ 
+
+```{r}
+library(jpeg)
+logo1 <- electro_beach_html |> 
+  html_nodes(xpath = "//*[@id='mw-content-text']/div[1]/ul[2]/li[1]/div/div[1]/div/a/img") |> 
+  html_attr("src")
+logo1
+download.file(paste0("http:", logo1), destfile = "logo_electrobeach.jpg")
+img <- readJPEG("logo_electrobeach.jpg")
+plot(0, 0, type = "n", xlim = c(0, 1), ylim = c(0, 1), xlab = "", ylab = "")
+rasterImage(img, 0, 0, 1, 1)
+```
+
+
+```{r}
+logo2 <- electro_beach_html |> 
+  html_nodes(xpath = "//*[@id='mw-content-text']/div[1]/ul[2]/li[2]/div/div[1]/div/a/img") |> 
+  html_attr("src")
+logo2
+download.file(paste0("http:", logo2), destfile = "logo_electrobeach2.jpg")
+```
+
+```{r}
+logo3
+```
+
+
+```{r}
+logo4
+```
+
+
+# Mise en relation entre le JSON et le site des festivals 
+
+```{r}
+library(stringr)
+listes_festivals_low <- str_to_lower(listes_festivals)
+listes_festivals_low
+```
+
+```{r}
+df_festivals_low <- str_to_lower(df_festivals$nom_de_la_manifestation)
+df_festivals_low
+```
+
+```{r}
+festivals_communs <- intersect(df_festivals_low, listes_festivals_low)
+cat("Les festivals qui sont présents dans le JSON et dans la liste des festivals conseillés par le site internet sont", paste("\n", festivals_communs))
+```
+```{r}
+df_festivals$nom_de_la_manifestation <- str_to_lower(df_festivals$nom_de_la_manifestation)
+```
+
+Ces festivals font donc partis de la liste des meilleurs festivals de musique électronique amplifiée de France. 
+
+```{r}
+for(i in seq_along(festivals_communs)){
+    cat("Le festival", festivals_communs[[i]], "aura probablement lieu durant le mois de", df_festivals$mois_habituel_de_debut[[i]], "dans le département de", df_festivals$nom_departement[[i]],". Pour de plus amples informations, voici leur site internet", df_festivals$site_web[[i]],"\n")
+}
+```
+
+
+
+
+
+
+
+
+
 

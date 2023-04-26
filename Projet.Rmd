@@ -245,17 +245,34 @@ site_electro_beach <- "https://fr.wikipedia.org/wiki/Electrobeach_Music_Festival
 electro_beach_html <- read_html(site_electro_beach)
 ```
 
+### L'histoire de l'Electro Beach Festival 
+
 Nous allons maintenant cherche à en savoir un peu plus sur ce festival, en commençant par son histoire.
 
 ```{r}
 
 ```
 
+###
 
 # Mise en relation entre le JSON et le site des festivals 
 
 ```{r}
-
+library(stringr)
+listes_festivals_low <- str_to_lower(listes_festivals)
+listes_festivals_low
 ```
+
+```{r}
+df_festivals_low <- str_to_lower(df_festivals$nom_de_la_manifestation)
+df_festivals_low
+```
+
+```{r}
+festivals_communs <- intersect(df_festivals_low, listes_festivals_low)
+cat("Les festivals qui sont présents dans le JSON et dans la liste des festivals conseillés par le site internet sont", paste("\n", festivals_communs))
+```
+
+
 
 
