@@ -10,6 +10,7 @@ library(rvest)
 library(tidyverse)
 library(jsonlite)
 library(sf)
+library(stringr)
 ```
 
 # Présentation de notre projet
@@ -153,7 +154,7 @@ head(df_depart,3)
 
 ```{r}
 france_map_count <- merge(dpt, df_depart, by = "ID_GEOFLA", all.x = TRUE)
-france_map_count
+head(france_map_count,3)
 ```
 
 ```{r}
@@ -182,7 +183,7 @@ ggplot(df_mois, aes(x = Mois, y = Frequence)) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
   guides(fill=FALSE) 
 ```
-Nous observons que plus les beaux jours arrivent, plus le nombre de festival augmente. 
+Nous observons que plus les beaux jours arrivent, plus le nombre de festivals augmente. 
 
 # Données provenant d'un site web
 
@@ -235,7 +236,7 @@ for(i in seq_along(listes_festivals)){
 
 ## Zoom sur le Electrobeach Music Festival
 
-Il est le plus grand festival français de musiques électroniques fondé par Alain Ferrand. Il a lieu au Barcarès en face du Lydia, le plus vieux paquebot du monde ensablé depuis 1967. 
+Electrobeach Music Festival est le plus grand **festival français de musiques électroniques** fondé par Alain Ferrand. Il a lieu au Barcarès en face du Lydia, le plus vieux paquebot du monde ensablé depuis 1967. 
 
 ```{r}
 site_electro_beach <- "https://fr.wikipedia.org/wiki/Electrobeach_Music_Festival"
@@ -247,7 +248,7 @@ electro_beach_html <- read_html(site_electro_beach)
 
 ### L'histoire de l'Electro Beach Festival 
 
-Nous allons maintenant cherche à en savoir un peu plus sur ce festival, en commençant par son histoire.
+Nous allons maintenant chercher à en savoir un peu plus sur ce festival, en commençant par son histoire.
 
 ```{r}
 
@@ -258,7 +259,6 @@ Nous allons maintenant cherche à en savoir un peu plus sur ce festival, en comm
 # Mise en relation entre le JSON et le site des festivals 
 
 ```{r}
-library(stringr)
 listes_festivals_low <- str_to_lower(listes_festivals)
 listes_festivals_low
 ```
