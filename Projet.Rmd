@@ -265,7 +265,7 @@ listes_festivals_low
 
 ```{r}
 df_festivals_low <- str_to_lower(df_festivals$nom_de_la_manifestation)
-df_festivals_low
+head(df_festivals_low)
 ```
 
 ```{r}
