@@ -207,7 +207,7 @@ listes_festivals <- festival_html |>
 cat("Les festivals les plus recommandés sont :", paste("\n", listes_festivals))
 ```
 
-Obtention du lieu d'un festival
+Nous allons maintenant récupérer les différents lieux des festivals : 
 
 ```{r}
 liste_lieux <- festival_html |> 
@@ -217,7 +217,7 @@ liste_lieux <- gsub("Lieu : ", "", liste_lieux)
 liste_lieux
 ```
 
-Obtention de la date du festival 
+Puis nous allons récupérer les différentes dates des festivals : 
 
 ```{r}
 liste_dates_prov <- festival_html |> 
@@ -226,6 +226,8 @@ liste_dates_prov <- festival_html |>
 liste_dates <- gsub("\nDate : ", "", liste_dates_prov)
 liste_dates
 ```
+
+Nous allons alors, pour chaque festival, afficher sa date et son lieu.
 
 ```{r}
 for(i in seq_along(listes_festivals)){
