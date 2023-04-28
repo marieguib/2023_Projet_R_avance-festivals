@@ -10,6 +10,7 @@ library(rvest)
 library(tidyverse)
 library(jsonlite)
 library(sf)
+library(stringr)
 ```
 
 # Présentation de notre projet
@@ -153,7 +154,7 @@ head(df_depart,3)
 
 ```{r}
 france_map_count <- merge(dpt, df_depart, by = "ID_GEOFLA", all.x = TRUE)
-france_map_count
+head(france_map_count,3)
 ```
 
 ```{r}
@@ -182,7 +183,7 @@ ggplot(df_mois, aes(x = Mois, y = Frequence)) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
   guides(fill=FALSE) 
 ```
-Nous observons que plus les beaux jours arrivent, plus le nombre de festival augmente. 
+Nous observons que plus les beaux jours arrivent, plus le nombre de festivals augmente. 
 
 # Données provenant d'un site web
 
@@ -237,7 +238,7 @@ for(i in seq_along(listes_festivals)){
 
 ## Zoom sur le Electrobeach Music Festival
 
-Il est le plus grand festival français de musiques électroniques fondé par Alain Ferrand. Il a lieu au Barcarès en face du Lydia, le plus vieux paquebot du monde ensablé depuis 1967. 
+Electrobeach Music Festival est le plus grand **festival français de musiques électroniques** fondé par Alain Ferrand. Il a lieu au Barcarès en face du Lydia, le plus vieux paquebot du monde ensablé depuis 1967. 
 
 ```{r}
 site_electro_beach <- "https://fr.wikipedia.org/wiki/Electrobeach_Music_Festival"
@@ -249,25 +250,142 @@ electro_beach_html <- read_html(site_electro_beach)
 
 ### L'histoire de l'Electro Beach Festival 
 
-Nous allons maintenant cherche à en savoir un peu plus sur ce festival, en commençant par son histoire.
+Nous allons maintenant chercher à en savoir un peu plus sur ce festival, en commençant par son histoire : 
 
 ```{r}
-
+electro_beach_html |> 
+  html_nodes(xpath ="/html/body/div[2]/div/div[3]/main/div[3]/div[3]/div[1]/p[3]") |> 
+  html_text()
 ```
 
-###
+Lorsque ce festival a été créé, il était d'une plus petite envergure et d'une durée plus courte qu'actuellement. C'est ce que nous précise ce paragraphe : 
+
+```{r}
+electro_beach_html |> 
+  html_nodes(xpath = "/html/body/div[2]/div/div[3]/main/div[3]/div[3]/div[1]/p[4]") |> 
+  html_text()
+```
+
+```{r}
+electro_beach_html |> 
+  html_nodes(xpath = "//*[@id='mw-content-text']/div[1]/ul[1]/li[1]/text()[1]") |> 
+  html_text()
+```
+
+
+Le festival a eu lieu pour la dernière fois en 2019, avant la pandémie du Covid-19. Sur cette page web, nous pouvons voir un article dédié à ce sujet. 
+
+```{r}
+electro_beach_html |> 
+  html_nodes(xpath = "/html/body/div[2]/div/div[3]/main/div[3]/div[3]/div[1]/p[8]") |> 
+  html_text()
+```
+
+La dernière édition a accueilli de nombreux festivaliers :
+
+```{r}
+electro_beach_html |> 
+  html_nodes(xpath = "/html/body/div[2]/div/div[3]/main/div[3]/div[3]/div[1]/ul[1]/li[9]") |> 
+  html_text()
+```
+
+```{r}
+freq <- electro_beach_html |> 
+  html_nodes("ul:first-of-type li") |> 
+  html_text() |> 
+  str_extract("\\d+\\s\\d+") |> 
+  na.omit()
+frequentation <- freq[1:9]
+frequentation_num <- gsub(" ", "", frequentation)
+annees <- 2011:2019
+df <- data.frame(annees, frequentation_num)
+df$frequentation_num <- gsub(" ", "", df$frequentation_num)
+df
+```
+
+Cepedant, nous pouvons observer que certaines éditions n'ont pas eu lieu à cause de la crise sanitaire.
+
+```{r}
+electro_beach_html |> 
+  html_nodes(xpath = "/html/body/div[2]/div/div[3]/main/div[3]/div[3]/div[1]/ul[1]/li[10]") |> 
+  html_text()
+```
+
+### Les différents logos de l'Electro Beach Music Festival 
+
+```{r}
+library(jpeg)
+logo1 <- electro_beach_html |> 
+   html_nodes(xpath = "//*[@id='mw-content-text']/div[1]/ul[2]/li[1]/div/div[1]/div/a/img") |> 
+   html_attr("src")
+logo1
+download.file(paste0("http:", logo1), destfile = "logo_electrobeach.jpg")
+img <- readJPEG("logo_electrobeach.jpg")
+plot(0, 0, type = "n", xlim = c(0, 1), ylim = c(0, 1), xlab = "", ylab = "")
+rasterImage(img, 0, 0, 0.5, 1)
+```
+
+
+```{r}
+logo2 <- electro_beach_html |> 
+   html_nodes(xpath = "//*[@id='mw-content-text']/div[1]/ul[2]/li[2]/div/div[1]/div/a/img") |> 
+   html_attr("src")
+logo2
+download.file(paste0("http:", logo2), destfile = "logo_electrobeach2.jpg")
+img <- readJPEG("logo_electrobeach2.jpg")
+plot(0, 0, type = "n", xlim = c(0, 1), ylim = c(0, 1), xlab = "", ylab = "")
+rasterImage(img, 0, 0, 0.5, 1)
+```
+
+```{r}
+logo3 <- electro_beach_html |> 
+   html_nodes(xpath = "//*[@id='mw-content-text']/div[1]/ul[2]/li[3]/div/div[1]/div/a/img") |> 
+   html_attr("src")
+ logo3
+ download.file(paste0("http:", logo3), destfile = "logo_electrobeach3.jpg")
+img <- readJPEG("logo_electrobeach3.jpg")
+plot(0, 0, type = "n", xlim = c(0, 1), ylim = c(0, 1), xlab = "", ylab = "")
+rasterImage(img, 0, 0, 0.5, 1)
+```
+
+```{r}
+logo4 <- electro_beach_html |> 
+   html_nodes(xpath = "//*[@id='mw-content-text']/div[1]/ul[2]/li[4]/div/div[1]/div/a/img") |> 
+   html_attr("src")
+ logo4
+ download.file(paste0("http:", logo4), destfile = "logo_electrobeach4.jpg")
+ img <- readJPEG("logo_electrobeach4.jpg")
+ plot(0, 0, type = "n", xlim = c(0, 1), ylim = c(0, 1), xlab = "", ylab = "")
+ rasterImage(img, 0, 0, 0.5, 1)
+```
+
+Les logos de l'année 2015 n'est pas disponible sur le site de wikipédia. Cependant, nous avons trouvé ça important de montrer le logo actuel du festival, en place depuis 2016. 
+
+```{r}
+library(png)
+electrobeach_site <- "https://www.electrobeach.com"
+electro_beach_site_html <- read_html(electrobeach_site)
+logo2016 <- electro_beach_site_html |> 
+   html_nodes(xpath = "//*[@id='header_main']/div/div/span/a/img") |> 
+   html_attr("src")
+logo2016
+download.file(paste0(logo2016), destfile = "logo_electrobeach2016.png")
+img <- readPNG("logo_electrobeach2016.png")
+plot(0, 0, type = "n", xlim = c(0, 1), ylim = c(0, 1), xlab = "", ylab = "")
+rasterImage(img, 0, 0, 0.5, 1)
+```
+
 
 # Mise en relation entre le JSON et le site des festivals 
 
 ```{r}
-library(stringr)
 listes_festivals_low <- str_to_lower(listes_festivals)
 listes_festivals_low
 ```
 
 ```{r}
 df_festivals_low <- str_to_lower(df_festivals$nom_de_la_manifestation)
-df_festivals_low
+head(df_festivals_low)
 ```
 
 ```{r}
