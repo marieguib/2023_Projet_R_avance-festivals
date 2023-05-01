@@ -336,11 +336,13 @@ freq <- electro_beach_html |>
 frequentation <- freq[1:9]
 annees <- 2011:2019
 
-df <- data.frame(annees,frequentation_num)
-str(df)
-df$frequentation_num <- as.numeric(gsub(" ", "", df$frequentation_num,fixed=TRUE))
+df <- data.frame(annees,frequentation_num) |> 
+  rename(Annee = annees, Frequentation = frequentation_num )
 df
 ```
+
+Nous pouvons constater que le nombre de festivaliers le plus important est en 2017. De plus, nous observons une forte évolution entre sa création et les dernières éditions !
+
 
 ### Les différents logos de l'Electro Beach Music Festival 
 
