@@ -452,5 +452,5 @@ cat("Les festivals qui sont présents dans le JSON et dans la liste des festival
 
 # Conclusion
 
-Finalement,
+Finalement, ce projet nous a permis de traiter des données de natures différentes. Ce projet a été d'autant plus agréable que nous avons choisi nos propres données, les festivals de musique électronniques et amplifiées. Les données étant variées, nous avons pu les illustrer à travers des graphiques, une carte, la récupération d'images... Le projet se déclinant sur plusieurs échelles nous a permis de ne pas rendre le projet monotone et d'explorer plusieurs approches. En espérant vous avoir donné envie d'aller danser sur des musiques électroniques (comme nous l'avons vu, beaucoup de festivals se trouvent en Ille-et-Vilaine et la saison des beaux jours arrive 🥳). 
 
