@@ -338,7 +338,7 @@ annees <- 2011:2019
 
 df <- data.frame(annees,frequentation_num)
 str(df)
-df$frequentation_num <- as.numeric(gsub(" ", "", df$frequentation_num))
+df$frequentation_num <- as.numeric(gsub(" ", "", df$frequentation_num,fixed=TRUE))
 df
 ```
 
