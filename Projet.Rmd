@@ -23,7 +23,7 @@ Lors de cette étude, nous avons abordé un sujet qui nous tient particulièreme
 
 # Données provenant de l'API
 
-Premièrement, nous avons choisi une API nationale repertoriant tous les festivals de musique de France. Nous avons affiné notre étude en ne sélectionnant que les musiques amplifiées ou électroniques. 
+Premièrement, nous avons choisi une API nationale répertoriant tous les festivals de musique de France. Nous avons affiné notre étude en ne sélectionnant que les musiques amplifiées ou électroniques. 
 
 Nous allons donc procéder à l'étude de ce panorama de festivals !
 
@@ -130,7 +130,7 @@ write.table(df_festivals,"donnees_festivals.csv",sep=";")
 
 Tout d'abord, nous allons pouvoir visualiser les régions avec le plus d'évènements. 
 
-```{r warning=FALSE}
+```{r}
 # Calculer les fréquences de chaque région
 freq <- table(df_festivals$region)
 
@@ -146,7 +146,7 @@ Ce tableau nous présente les trois régions organisant le plus de festivals de 
 
 Ce diagramme en barres nous permet d'avoir une information plus exhaustive au du nombre de festivals annuels dans chaque région de France.
 
-```{r}
+```{r warning=FALSE}
 ggplot(df_regions, aes(x = reorder(Region,-Frequence), y = Frequence)) +
   geom_bar(stat = "identity") +
   labs(title = "Fréquence des festivals dans chaque région française", x = "Région", y = "Nombre de festivals") +
@@ -166,7 +166,7 @@ dpt <- read_sf("dpt")
 # Création d'un tableau de fréquence des festivals par département
 # freq <- table(df_festivals$departement)
 
-# Création d'un dataframe avec le nombr de festivals par département
+# Création d'un dataframe avec le nombre de festivals par département
 df_depart <- data.frame(table(df_festivals$departement)) |> 
   rename(ID_GEOFLA = Var1, Frequence = Freq)|>  # renommage des colonnes
   mutate(Pourcentage = round(Frequence / sum(Frequence) * 100, 1)) # création d'une variable en pourcentage
@@ -176,7 +176,7 @@ head(df_depart,3)
 
 ```{r}
 # Création du dataframe final pour réaliser la carte
-france_map_count <- merge(dpt, df_depart, by = "ID_GEOFLA", all.x = TRUE)
+france_map_count <- merge(dpt, df_depart, by.x = "CODE_DEPT",by.y = "ID_GEOFLA", all.x = TRUE)
 head(france_map_count,3)
 ```
 
@@ -187,7 +187,9 @@ ggplot(france_map_count) + geom_sf(aes(fill=Frequence)) +
   scale_fill_continuous(low="yellow",high="red")+theme_void()
 ```
 
-Cette carte est bien en adéquation avec les données de région que nous avons vu auparavant. En effet, le département avec le plus de festivals est le département de la Haute-Savoie et est bien situé en Auvergne-Rhône-Alpes. 
+Cette carte est bien en adéquation avec les données de région que nous avons vu auparavant. Le région Auvergne-Rhône Alpes présente de nombreux festivals, tout comme l'Ile de France. Par ailleurs, nous pouvons aussi remarquer qu'en Ille-et-Vilaine de nombreux festivals ont aussi lieu ! 
+
+N.B. : Cette carte montre qu'il y a quelques départements sans correspondance, nous avons décidé de ne pas en tenir compte.
 
 
 Nous allons maintenant nous intéresser au nombre de festivals par mois : 
@@ -450,6 +452,5 @@ cat("Les festivals qui sont présents dans le JSON et dans la liste des festival
 
 # Conclusion
 
-
-
+Finalement,
 
