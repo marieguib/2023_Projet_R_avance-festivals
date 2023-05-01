@@ -13,11 +13,17 @@ library(sf)
 library(stringr)
 ```
 
+N.B. : Au format PDF, certaines de nos sorties ne sont pas affichées entièrement. Afin de les avoir en entier, n'hésitez pas à éxécuter le code Rmd.
+
 # Présentation de notre projet
 
 Lors de cette étude, nous avons abordé un sujet qui nous tient particulièrement à coeur : les festivals de musique. En effet, nous avons choisi d'aborder ce sujet et de nous focaliser les festivals de musique amplifiées et électroniques. Ces évènements ont une portée culturelle très importante et un impact économique dans le monde entier.
 
 # Données provenant de l'API
+
+Premièrement, nous avons choisi une API nationale repertoriant tous les festivals de musique de France. Nous avons affiné notre étude en ne sélectionnant que les musiques amplifiées ou électroniques. 
+
+Nous allons donc procéder à l'étude de ce panorama de festivals !
 
 ## Extraction des données via une API
 
@@ -82,7 +88,7 @@ df_festivals <- df_festivals |>
 # table(df_festivals$periodicite)
 ```
 
-Nous allons extraire les coordonnées GPS de la variable **coordonnes_insee** afin de la scinder en deux colonnes : latitude et longitude. Cette étape nous permettra de faire plus facilement nos graphiques par la suite. 
+Nous allons extraire les coordonnées GPS de la variable **coordonnes_insee** afin de la scinder en deux colonnes : latitude et longitude. Cette étape nous permettra de réaliser plus facilement notre carte par la suite. 
 
 ```{r}
 # On extrait d'abord les coordonnées et on créé un dataframe contenant la latitude et la longitude
@@ -108,6 +114,9 @@ df_festivals <- df_festivals |>
 head(df_festivals,3)
 ```
 
+### Récupération de la base de données finale
+
+Afin d'avoir une base de données accessible à tous, nous avons décider d'exporter notre base de données après traitement en format csv. Cette étape n'est pas indispensable mais elle permet de créer une base de données "propre".
 
 ```{r}
 write.table(df_festivals,"donnees_festivals.csv",sep=";")
@@ -119,7 +128,7 @@ write.table(df_festivals,"donnees_festivals.csv",sep=";")
 
 Tout d'abord, nous allons pouvoir visualiser les régions avec le plus d'évènements. 
 
-```{r message=FALSE}
+```{r warning=FALSE}
 # Calculer les fréquences de chaque région
 freq <- table(df_festivals$region)
 
@@ -129,7 +138,13 @@ df_regions <- data.frame(table(df_festivals$region)) |>
   mutate(Pourcentage = round(Frequence / sum(Frequence) * 100, 1)) |> 
   arrange(-Frequence) # on trie selon le nombre de festivals dans la région
 head(df_regions,3)
+```
 
+Ce tableau nous présente les trois régions organisant le plus de festivals de musique électroniques ou amplifiées. En première place, nous retrouvons la région Auvergne-Rhône-Alpes avec 83 festivals mis en place chaque année. Ensuite, l'Ile de France en seconde place avec 62 festivals et l'Occitanie avec 61 festivals. 
+
+Ce diagramme en barres nous permet d'avoir une information plus exhaustive au du nombre de festivals annuels dans chaque région de France.
+
+```{r}
 ggplot(df_regions, aes(x = reorder(Region,-Frequence), y = Frequence)) +
   geom_bar(stat = "identity") +
   labs(title = "Fréquence des festivals dans chaque région française", x = "Région", y = "Nombre de festivals") +
@@ -137,42 +152,51 @@ ggplot(df_regions, aes(x = reorder(Region,-Frequence), y = Frequence)) +
   guides(fill=FALSE) 
 ```
 
-Nous allons maintenant représenter le nombre de festivals par département de France. 
+Nous allons maintenant représenter le nombre de festivals par département.
 
 ```{r}
+# Création de la base de données comportant tous les départements 
+# de France ainsi que leurs caractéristiques 
 dpt <- read_sf("dpt")
 ```
 
 ```{r}
-freq <- table(df_festivals$departement)
+# Création d'un tableau de fréquence des festivals par département
+# freq <- table(df_festivals$departement)
 
+# Création d'un dataframe avec le nombr de festivals par département
 df_depart <- data.frame(table(df_festivals$departement)) |> 
-  rename(ID_GEOFLA = Var1, Frequence = Freq)|> 
-  mutate(Pourcentage = round(Frequence / sum(Frequence) * 100, 1))
+  rename(ID_GEOFLA = Var1, Frequence = Freq)|>  # renommage des colonnes
+  mutate(Pourcentage = round(Frequence / sum(Frequence) * 100, 1)) # création d'une variable en pourcentage
+
 head(df_depart,3)
 ```
 
 ```{r}
+# Création du dataframe final pour réaliser la carte
 france_map_count <- merge(dpt, df_depart, by = "ID_GEOFLA", all.x = TRUE)
 head(france_map_count,3)
 ```
 
+
 ```{r}
+# Carte
 ggplot(france_map_count) + geom_sf(aes(fill=Frequence)) +
   scale_fill_continuous(low="yellow",high="red")+theme_void()
 ```
 
-Cette carte est bien en adéquation avec les données de région que nous avons vu auparavant. En effet, le département avec le plus de festivals est le département de la Hauute-Savoie et est bien situé en Auvergne-Rhône-Alpes. 
+Cette carte est bien en adéquation avec les données de région que nous avons vu auparavant. En effet, le département avec le plus de festivals est le département de la Haute-Savoie et est bien situé en Auvergne-Rhône-Alpes. 
+
 
 Nous allons maintenant nous intéresser au nombre de festivals par mois : 
 
-
 ```{r}
+# Création d'un tableau avec le nombre de festivals par mois
 freq <- table(df_festivals$mois_habituel_de_debut)
 
 df_mois <- data.frame(table(df_festivals$mois_habituel_de_debut)) |> 
   rename(Mois = Var1, Frequence = Freq) |> 
-  mutate(Pourcentage = round(Frequence / sum(Frequence) * 100, 1))
+  mutate(Pourcentage = round(Frequence / sum(Frequence) * 100, 1)) #Création d'une variable en pourcentage
 df_mois
 ```
 
@@ -183,9 +207,11 @@ ggplot(df_mois, aes(x = Mois, y = Frequence)) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
   guides(fill=FALSE) 
 ```
-Nous observons que plus les beaux jours arrivent, plus le nombre de festivals augmente. 
+Nous observons que plus les beaux jours arrivent, plus le nombre de festivals augmente. Cette conclusion est bien cohérente avec nos données. 
 
 # Données provenant d'un site web
+
+Dans un second temps, nous avons choisi d'étudier deux sites web concernant les festivals les plus reconnus en France et un autre au sujet du festival le plus connu de France : l'ElectroBeach Festival. 
 
 ## Extraction des données via un site web
 
@@ -198,6 +224,7 @@ festival_html <- read_html(site_festivals)
 ```
 
 Grâce à cette page web, nous allons pouvoir établir les festivals les plus en vogue.
+Nous avons choisi d'utiliser **xpath**  pour se déplacer librement dans l’arbre. 
 
 ```{r}
 listes_festivals <- festival_html |> 
@@ -241,6 +268,7 @@ for(i in seq_along(listes_festivals)){
 Electrobeach Music Festival est le plus grand **festival français de musiques électroniques** fondé par Alain Ferrand. Il a lieu au Barcarès en face du Lydia, le plus vieux paquebot du monde ensablé depuis 1967. 
 
 ```{r}
+# url du site web
 site_electro_beach <- "https://fr.wikipedia.org/wiki/Electrobeach_Music_Festival"
 ```
 
@@ -289,6 +317,16 @@ electro_beach_html |>
   html_text()
 ```
 
+Cependant, nous pouvons observer que certaines éditions n'ont pas eu lieu à cause de la crise sanitaire.
+
+```{r}
+electro_beach_html |> 
+  html_nodes(xpath = "/html/body/div[2]/div/div[3]/main/div[3]/div[3]/div[1]/ul[1]/li[10]") |> 
+  html_text()
+```
+
+Nous pouvons visualiser l'évolution du nombre de festivaliers à l'Electro Beach Club. 
+
 ```{r}
 freq <- electro_beach_html |> 
   html_nodes("ul:first-of-type li") |> 
@@ -303,26 +341,18 @@ df$frequentation_num <- gsub(" ", "", df$frequentation_num)
 df
 ```
 
-Cepedant, nous pouvons observer que certaines éditions n'ont pas eu lieu à cause de la crise sanitaire.
-
-```{r}
-electro_beach_html |> 
-  html_nodes(xpath = "/html/body/div[2]/div/div[3]/main/div[3]/div[3]/div[1]/ul[1]/li[10]") |> 
-  html_text()
-```
-
 ### Les différents logos de l'Electro Beach Music Festival 
 
 ```{r}
 library(jpeg)
-logo1 <- electro_beach_html |> 
-   html_nodes(xpath = "//*[@id='mw-content-text']/div[1]/ul[2]/li[1]/div/div[1]/div/a/img") |> 
-   html_attr("src")
-logo1
-download.file(paste0("http:", logo1), destfile = "logo_electrobeach.jpg")
-img <- readJPEG("logo_electrobeach.jpg")
-plot(0, 0, type = "n", xlim = c(0, 1), ylim = c(0, 1), xlab = "", ylab = "")
-rasterImage(img, 0, 0, 0.5, 1)
+# logo1 <- electro_beach_html |> 
+#    html_nodes(xpath = "//*[@id='mw-content-text']/div[1]/ul[2]/li[1]/div/div[1]/div/a/img") |> 
+#    html_attr("src")
+# logo1
+# download.file(paste0("http:", logo1), destfile = "logo_electrobeach.jpg")
+# img <- readJPEG("logo_electrobeach.jpg")
+# plot(0, 0, type = "n", xlim = c(0, 1), ylim = c(0, 1), xlab = "", ylab = "")
+# rasterImage(img, 0, 0, 0.5, 1)
 ```
 
 
@@ -338,60 +368,68 @@ rasterImage(img, 0, 0, 0.5, 1)
 ```
 
 ```{r}
-logo3 <- electro_beach_html |> 
-   html_nodes(xpath = "//*[@id='mw-content-text']/div[1]/ul[2]/li[3]/div/div[1]/div/a/img") |> 
-   html_attr("src")
- logo3
- download.file(paste0("http:", logo3), destfile = "logo_electrobeach3.jpg")
-img <- readJPEG("logo_electrobeach3.jpg")
-plot(0, 0, type = "n", xlim = c(0, 1), ylim = c(0, 1), xlab = "", ylab = "")
-rasterImage(img, 0, 0, 0.5, 1)
+# logo3 <- electro_beach_html |> 
+#    html_nodes(xpath = "//*[@id='mw-content-text']/div[1]/ul[2]/li[3]/div/div[1]/div/a/img") |> 
+#    html_attr("src")
+#  logo3
+#  download.file(paste0("http:", logo3), destfile = "logo_electrobeach3.jpg")
+# img <- readJPEG("logo_electrobeach3.jpg")
+# plot(0, 0, type = "n", xlim = c(0, 1), ylim = c(0, 1), xlab = "", ylab = "")
+# rasterImage(img, 0, 0, 0.5, 1)
 ```
 
 ```{r}
-logo4 <- electro_beach_html |> 
-   html_nodes(xpath = "//*[@id='mw-content-text']/div[1]/ul[2]/li[4]/div/div[1]/div/a/img") |> 
-   html_attr("src")
- logo4
- download.file(paste0("http:", logo4), destfile = "logo_electrobeach4.jpg")
- img <- readJPEG("logo_electrobeach4.jpg")
- plot(0, 0, type = "n", xlim = c(0, 1), ylim = c(0, 1), xlab = "", ylab = "")
- rasterImage(img, 0, 0, 0.5, 1)
+# logo4 <- electro_beach_html |> 
+#    html_nodes(xpath = "//*[@id='mw-content-text']/div[1]/ul[2]/li[4]/div/div[1]/div/a/img") |> 
+#    html_attr("src")
+#  logo4
+#  download.file(paste0("http:", logo4), destfile = "logo_electrobeach4.jpg")
+#  img <- readJPEG("logo_electrobeach4.jpg")
+#  plot(0, 0, type = "n", xlim = c(0, 1), ylim = c(0, 1), xlab = "", ylab = "")
+#  rasterImage(img, 0, 0, 0.5, 1)
 ```
 
 Les logos de l'année 2015 n'est pas disponible sur le site de wikipédia. Cependant, nous avons trouvé ça important de montrer le logo actuel du festival, en place depuis 2016. 
 
 ```{r}
-library(png)
-electrobeach_site <- "https://www.electrobeach.com"
-electro_beach_site_html <- read_html(electrobeach_site)
-logo2016 <- electro_beach_site_html |> 
-   html_nodes(xpath = "//*[@id='header_main']/div/div/span/a/img") |> 
-   html_attr("src")
-logo2016
-download.file(paste0(logo2016), destfile = "logo_electrobeach2016.png")
-img <- readPNG("logo_electrobeach2016.png")
-plot(0, 0, type = "n", xlim = c(0, 1), ylim = c(0, 1), xlab = "", ylab = "")
-rasterImage(img, 0, 0, 0.5, 1)
+# library(png)
+# electrobeach_site <- "https://www.electrobeach.com"
+# electro_beach_site_html <- read_html(electrobeach_site)
+# logo2016 <- electro_beach_site_html |> 
+#    html_nodes(xpath = "//*[@id='header_main']/div/div/span/a/img") |> 
+#    html_attr("src")
+# logo2016
+# download.file(paste0(logo2016), destfile = "logo_electrobeach2016.png")
+# img <- readPNG("logo_electrobeach2016.png")
+# plot(0, 0, type = "n", xlim = c(0, 1), ylim = c(0, 1), xlab = "", ylab = "")
+# rasterImage(img, 0, 0, 0.5, 1)
 ```
 
 
 # Mise en relation entre le JSON et le site des festivals 
 
+Nous pouvons maintenant mettre en lien le fichier JSOn et le web-scrapping réalisé sur les sites web. 
+En effet, nous allons chercher les festivals en commun entre ces deux sources. Pour y parvenir, nous devons mettre les champs dans le même format. 
+
 ```{r}
+# Mise en minuscules des champs
 listes_festivals_low <- str_to_lower(listes_festivals)
 listes_festivals_low
 ```
 
 ```{r}
+# Mise en minuscules des champs
 df_festivals_low <- str_to_lower(df_festivals$nom_de_la_manifestation)
 head(df_festivals_low)
 ```
 
 ```{r}
+# Intersections des deux sources :
 festivals_communs <- intersect(df_festivals_low, listes_festivals_low)
 cat("Les festivals qui sont présents dans le JSON et dans la liste des festivals conseillés par le site internet sont", paste("\n", festivals_communs))
 ```
+
+# Conclusion
 
 
 
