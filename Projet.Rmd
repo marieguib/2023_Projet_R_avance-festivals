@@ -330,14 +330,15 @@ Nous pouvons visualiser l'évolution du nombre de festivaliers à l'Electro Beac
 ```{r}
 freq <- electro_beach_html |> 
   html_nodes("ul:first-of-type li") |> 
-  html_text() |> 
+  # html_text() |> 
   str_extract("\\d+\\s\\d+") |> 
-  na.omit()
+  na.omit() # suppression des données manquantes
 frequentation <- freq[1:9]
-frequentation_num <- gsub(" ", "", frequentation)
 annees <- 2011:2019
-df <- data.frame(annees, frequentation_num)
-df$frequentation_num <- gsub(" ", "", df$frequentation_num)
+
+df <- data.frame(annees,frequentation_num)
+str(df)
+df$frequentation_num <- as.numeric(gsub(" ", "", df$frequentation_num))
 df
 ```
 
@@ -345,14 +346,14 @@ df
 
 ```{r}
 library(jpeg)
-# logo1 <- electro_beach_html |> 
-#    html_nodes(xpath = "//*[@id='mw-content-text']/div[1]/ul[2]/li[1]/div/div[1]/div/a/img") |> 
-#    html_attr("src")
-# logo1
+logo1 <- electro_beach_html |>
+   html_nodes(xpath = "//*[@id='mw-content-text']/div[1]/ul[2]/li[1]/div/div[1]/div/a/img") |>
+   html_attr("src")
+logo1
 # download.file(paste0("http:", logo1), destfile = "logo_electrobeach.jpg")
-# img <- readJPEG("logo_electrobeach.jpg")
-# plot(0, 0, type = "n", xlim = c(0, 1), ylim = c(0, 1), xlab = "", ylab = "")
-# rasterImage(img, 0, 0, 0.5, 1)
+img <- readJPEG("logo_electrobeach.jpg")
+plot(0, 0, type = "n", xlim = c(0, 1), ylim = c(0, 1), xlab = "", ylab = "")
+rasterImage(img, 0, 0, 0.5, 1)
 ```
 
 
@@ -361,48 +362,48 @@ logo2 <- electro_beach_html |>
    html_nodes(xpath = "//*[@id='mw-content-text']/div[1]/ul[2]/li[2]/div/div[1]/div/a/img") |> 
    html_attr("src")
 logo2
-download.file(paste0("http:", logo2), destfile = "logo_electrobeach2.jpg")
+# download.file(paste0("http:", logo2), destfile = "logo_electrobeach2.jpg")
 img <- readJPEG("logo_electrobeach2.jpg")
 plot(0, 0, type = "n", xlim = c(0, 1), ylim = c(0, 1), xlab = "", ylab = "")
 rasterImage(img, 0, 0, 0.5, 1)
 ```
 
 ```{r}
-# logo3 <- electro_beach_html |> 
-#    html_nodes(xpath = "//*[@id='mw-content-text']/div[1]/ul[2]/li[3]/div/div[1]/div/a/img") |> 
-#    html_attr("src")
-#  logo3
+logo3 <- electro_beach_html |>
+   html_nodes(xpath = "//*[@id='mw-content-text']/div[1]/ul[2]/li[3]/div/div[1]/div/a/img") |>
+   html_attr("src")
+ logo3
 #  download.file(paste0("http:", logo3), destfile = "logo_electrobeach3.jpg")
-# img <- readJPEG("logo_electrobeach3.jpg")
-# plot(0, 0, type = "n", xlim = c(0, 1), ylim = c(0, 1), xlab = "", ylab = "")
-# rasterImage(img, 0, 0, 0.5, 1)
+img <- readJPEG("logo_electrobeach3.jpg")
+plot(0, 0, type = "n", xlim = c(0, 1), ylim = c(0, 1), xlab = "", ylab = "")
+rasterImage(img, 0, 0, 0.5, 1)
 ```
 
 ```{r}
-# logo4 <- electro_beach_html |> 
-#    html_nodes(xpath = "//*[@id='mw-content-text']/div[1]/ul[2]/li[4]/div/div[1]/div/a/img") |> 
-#    html_attr("src")
-#  logo4
+logo4 <- electro_beach_html |>
+   html_nodes(xpath = "//*[@id='mw-content-text']/div[1]/ul[2]/li[4]/div/div[1]/div/a/img") |>
+   html_attr("src")
+ logo4
 #  download.file(paste0("http:", logo4), destfile = "logo_electrobeach4.jpg")
-#  img <- readJPEG("logo_electrobeach4.jpg")
-#  plot(0, 0, type = "n", xlim = c(0, 1), ylim = c(0, 1), xlab = "", ylab = "")
-#  rasterImage(img, 0, 0, 0.5, 1)
+ img <- readJPEG("logo_electrobeach4.jpg")
+ plot(0, 0, type = "n", xlim = c(0, 1), ylim = c(0, 1), xlab = "", ylab = "")
+ rasterImage(img, 0, 0, 0.5, 1)
 ```
 
 Les logos de l'année 2015 n'est pas disponible sur le site de wikipédia. Cependant, nous avons trouvé ça important de montrer le logo actuel du festival, en place depuis 2016. 
 
 ```{r}
-# library(png)
-# electrobeach_site <- "https://www.electrobeach.com"
-# electro_beach_site_html <- read_html(electrobeach_site)
-# logo2016 <- electro_beach_site_html |> 
-#    html_nodes(xpath = "//*[@id='header_main']/div/div/span/a/img") |> 
-#    html_attr("src")
-# logo2016
+library(png)
+electrobeach_site <- "https://www.electrobeach.com"
+electro_beach_site_html <- read_html(electrobeach_site)
+logo2016 <- electro_beach_site_html |>
+   html_nodes(xpath = "//*[@id='header_main']/div/div/span/a/img") |>
+   html_attr("src")
+logo2016
 # download.file(paste0(logo2016), destfile = "logo_electrobeach2016.png")
-# img <- readPNG("logo_electrobeach2016.png")
-# plot(0, 0, type = "n", xlim = c(0, 1), ylim = c(0, 1), xlab = "", ylab = "")
-# rasterImage(img, 0, 0, 0.5, 1)
+img <- readPNG("logo_electrobeach2016.png")
+plot(0, 0, type = "n", xlim = c(0, 1), ylim = c(0, 1), xlab = "", ylab = "")
+rasterImage(img, 0, 0, 0.5, 1)
 ```
 
 
