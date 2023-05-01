@@ -11,6 +11,8 @@ library(tidyverse)
 library(jsonlite)
 library(sf)
 library(stringr)
+library(jpeg)
+library(png)
 ```
 
 N.B. : Au format PDF, certaines de nos sorties ne sont pas affichées entièrement. Afin de les avoir en entier, n'hésitez pas à éxécuter le code Rmd.
@@ -330,14 +332,14 @@ Nous pouvons visualiser l'évolution du nombre de festivaliers à l'Electro Beac
 ```{r}
 freq <- electro_beach_html |> 
   html_nodes("ul:first-of-type li") |> 
-  # html_text() |> 
+  html_text() |>
   str_extract("\\d+\\s\\d+") |> 
   na.omit() # suppression des données manquantes
 frequentation <- freq[1:9]
 annees <- 2011:2019
 
-df <- data.frame(annees,frequentation_num) |> 
-  rename(Annee = annees, Frequentation = frequentation_num )
+df <- data.frame(annees,frequentation) |> 
+  rename(Annee = annees, Frequentation = frequentation)
 df
 ```
 
@@ -346,16 +348,22 @@ Nous pouvons constater que le nombre de festivaliers le plus important est en 20
 
 ### Les différents logos de l'Electro Beach Music Festival 
 
-```{r}
-library(jpeg)
+N.B. : Les logos présentent une qualité médiocre dûe aux diffférents traitements réalisés. De plus, leur dimension est assez petite sur wikipédia, leur agrandissement a donc des conséquences sur leur visualisation.
+
+Nous avons choisi de représenter les différents logos du festivals.
+
+```{r warning=FALSE}
 logo1 <- electro_beach_html |>
    html_nodes(xpath = "//*[@id='mw-content-text']/div[1]/ul[2]/li[1]/div/div[1]/div/a/img") |>
-   html_attr("src")
+   html_attr("src") # récupération du lien de l'image 
 logo1
-# download.file(paste0("http:", logo1), destfile = "logo_electrobeach.jpg")
-img <- readJPEG("logo_electrobeach.jpg")
-plot(0, 0, type = "n", xlim = c(0, 1), ylim = c(0, 1), xlab = "", ylab = "")
-rasterImage(img, 0, 0, 0.5, 1)
+
+# download.file(paste0("http:", logo1), destfile = "logo_electrobeach.jpg") # enregistrement du logo sur l'ordinateur
+
+img <- readJPEG("logo_electrobeach.jpg") # lecture de l'image
+
+plot(0, 0, type = "n", xlim = c(0, 1), ylim = c(0, 1), xlab = "", ylab = "") # création d'un graphique pour afficher le logo
+rasterImage(img, 0, 0, 0.5, 1) # position de l'image sur le graphique
 ```
 
 
@@ -375,8 +383,11 @@ logo3 <- electro_beach_html |>
    html_nodes(xpath = "//*[@id='mw-content-text']/div[1]/ul[2]/li[3]/div/div[1]/div/a/img") |>
    html_attr("src")
  logo3
+ 
 #  download.file(paste0("http:", logo3), destfile = "logo_electrobeach3.jpg")
+ 
 img <- readJPEG("logo_electrobeach3.jpg")
+
 plot(0, 0, type = "n", xlim = c(0, 1), ylim = c(0, 1), xlab = "", ylab = "")
 rasterImage(img, 0, 0, 0.5, 1)
 ```
@@ -386,24 +397,29 @@ logo4 <- electro_beach_html |>
    html_nodes(xpath = "//*[@id='mw-content-text']/div[1]/ul[2]/li[4]/div/div[1]/div/a/img") |>
    html_attr("src")
  logo4
+ 
 #  download.file(paste0("http:", logo4), destfile = "logo_electrobeach4.jpg")
+ 
  img <- readJPEG("logo_electrobeach4.jpg")
+ 
  plot(0, 0, type = "n", xlim = c(0, 1), ylim = c(0, 1), xlab = "", ylab = "")
  rasterImage(img, 0, 0, 0.5, 1)
 ```
 
-Les logos de l'année 2015 n'est pas disponible sur le site de wikipédia. Cependant, nous avons trouvé ça important de montrer le logo actuel du festival, en place depuis 2016. 
+Le logo de l'année 2015 n'est pas disponible sur le site de wikipédia. Cependant, nous avons trouvé ça important de montrer le logo actuel du festival, en place depuis 2016. 
 
 ```{r}
-library(png)
-electrobeach_site <- "https://www.electrobeach.com"
+electrobeach_site <- "https://www.electrobeach.com" # site web où se trouve le logo
 electro_beach_site_html <- read_html(electrobeach_site)
 logo2016 <- electro_beach_site_html |>
    html_nodes(xpath = "//*[@id='header_main']/div/div/span/a/img") |>
    html_attr("src")
 logo2016
+
 # download.file(paste0(logo2016), destfile = "logo_electrobeach2016.png")
+
 img <- readPNG("logo_electrobeach2016.png")
+
 plot(0, 0, type = "n", xlim = c(0, 1), ylim = c(0, 1), xlab = "", ylab = "")
 rasterImage(img, 0, 0, 0.5, 1)
 ```
