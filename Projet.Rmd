@@ -30,7 +30,7 @@ Nous allons donc procéder à l'étude de ce panorama de festivals !
 ## Extraction des données via une API
 
 ```{r}
-url_festival <- "https://data.culture.gouv.fr/api/records/1.0/search/?dataset=panorama-des-festivals&q=&rows=-1&facet=mois_habituel_de_debut&refine.complement_domaine=Musiques amplifiées ou électroniques"
+url_festival <- "https://data.culture.gouv.fr/api/records/1.0/search/?dataset=panorama-des-festivals&q=&rows=-1&facet=region&facet=domaine&facet=complement_domaine&facet=departement&facet=mois_habituel_de_debut"
 ```
 
 Nous utilisons le package **jsonlite** pour extraire les données de l'API.
@@ -49,6 +49,14 @@ head(df_festivals,3)
 
 ## Nettoyage de la base de données
 
+Premièrement, nous nous focalisons sur les données concernant les musiques amplifiées ou électroniques 
+
+```{r}
+df_festivals <- df_festivals |> 
+  filter(complement_domaine == "Musiques amplifiées ou électroniques")
+dim(df_festivals)
+```
+Nous avons maintenant une base de données avec 629 lignes et 36 colonnes.
 
 Afin de faciliter notre étude, nous avons choisi de supprimer certaines colonnes de la base de données. \
 De plus, certaines informations sont redondantes, nous avons donc choisi de les omettre aussi. Par exemple, le domaine correspond aux musiques actuelles et plus spécialement aux musiques amplifiées ou électroniques (complement_domaine). Ces deux colonnes n'étaient donc pas pertinentes pour la suite de notre analyse.
