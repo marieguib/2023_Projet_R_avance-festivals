@@ -306,13 +306,6 @@ electro_beach_html |>
   html_text()
 ```
 
-```{r}
-electro_beach_html |> 
-  html_nodes(xpath = "//*[@id='mw-content-text']/div[1]/ul[1]/li[1]/text()[1]") |> 
-  html_text()
-```
-
-
 Le festival a eu lieu pour la dernière fois en 2019, avant la pandémie du Covid-19. Sur cette page web, nous pouvons voir un article dédié à ce sujet. 
 
 ```{r}
@@ -360,13 +353,12 @@ Nous pouvons constater que le nombre de festivaliers le plus important est en 20
 
 N.B. : Les logos présentent une qualité médiocre dûe aux diffférents traitements réalisés. De plus, leur dimension est assez petite sur wikipédia, leur agrandissement a donc des conséquences sur leur visualisation.
 
-Nous avons choisi de représenter les différents logos du festivals.
+Nous avons choisi de représenter les différents logos du festivals, ici respectivement les années 2011, 2012, 2013, 2014 et 2016 (qui est encore le logo actuel du festitval).
 
 ```{r warning=FALSE}
 logo1 <- electro_beach_html |>
    html_nodes(xpath = "//*[@id='mw-content-text']/div[1]/ul[2]/li[1]/div/div[1]/div/a/img") |>
    html_attr("src") # récupération du lien de l'image 
-logo1
 
 # download.file(paste0("http:", logo1), destfile = "logo_electrobeach.jpg") # enregistrement du logo sur l'ordinateur
 
@@ -381,18 +373,17 @@ rasterImage(img, 0, 0, 0.5, 1) # position de l'image sur le graphique
 logo2 <- electro_beach_html |> 
    html_nodes(xpath = "//*[@id='mw-content-text']/div[1]/ul[2]/li[2]/div/div[1]/div/a/img") |> 
    html_attr("src")
-logo2
 # download.file(paste0("http:", logo2), destfile = "logo_electrobeach2.jpg")
 img <- readJPEG("logo_electrobeach2.jpg")
 plot(0, 0, type = "n", xlim = c(0, 1), ylim = c(0, 1), xlab = "", ylab = "")
 rasterImage(img, 0, 0, 0.5, 1)
 ```
 
+
 ```{r}
 logo3 <- electro_beach_html |>
    html_nodes(xpath = "//*[@id='mw-content-text']/div[1]/ul[2]/li[3]/div/div[1]/div/a/img") |>
    html_attr("src")
- logo3
  
 #  download.file(paste0("http:", logo3), destfile = "logo_electrobeach3.jpg")
  
@@ -416,7 +407,7 @@ logo4 <- electro_beach_html |>
  rasterImage(img, 0, 0, 0.5, 1)
 ```
 
-Le logo de l'année 2015 n'est pas disponible sur le site de wikipédia. Cependant, nous avons trouvé ça important de montrer le logo actuel du festival, en place depuis 2016. 
+Le logo de l'année 2015 n'est pas disponible sur le site de wikipédia. Cependant, nous avons trouvé pertinent le fait de montrer le logo actuel du festival, en place depuis 2016. 
 
 ```{r}
 electrobeach_site <- "https://www.electrobeach.com" # site web où se trouve le logo
@@ -424,7 +415,6 @@ electro_beach_site_html <- read_html(electrobeach_site)
 logo2016 <- electro_beach_site_html |>
    html_nodes(xpath = "//*[@id='header_main']/div/div/span/a/img") |>
    html_attr("src")
-logo2016
 
 # download.file(paste0(logo2016), destfile = "logo_electrobeach2016.png")
 
@@ -433,7 +423,6 @@ img <- readPNG("logo_electrobeach2016.png")
 plot(0, 0, type = "n", xlim = c(0, 1), ylim = c(0, 1), xlab = "", ylab = "")
 rasterImage(img, 0, 0, 0.5, 1)
 ```
-
 
 # Mise en relation entre le JSON et le site des festivals 
 
@@ -460,5 +449,5 @@ cat("Les festivals qui sont présents dans le JSON et dans la liste des festival
 
 # Conclusion
 
-Finalement, ce projet nous a permis de traiter des données de natures différentes. Ce projet a été d'autant plus agréable que nous avons choisi nos propres données, les festivals de musique électronniques et amplifiées. Les données étant variées, nous avons pu les illustrer à travers des graphiques, une carte, la récupération d'images... Le projet se déclinant sur plusieurs échelles nous a permis de ne pas rendre le projet monotone et d'explorer plusieurs approches. En espérant vous avoir donné envie d'aller danser sur des musiques électroniques (comme nous l'avons vu, beaucoup de festivals se trouvent en Ille-et-Vilaine et la saison des beaux jours arrive 🥳). 
+Finalement, ce projet nous a permis de traiter des données de natures différentes. Ce projet a été d'autant plus agréable que nous avons choisi nos propres données, les festivals de musique électronniques et amplifiées. Les données étant variées, nous avons pu les illustrer à travers des graphiques, une carte, la récupération d'images... Le projet se déclinant sur plusieurs échelles nous a permis de ne pas rendre le projet monotone et d'explorer plusieurs approches. En espérant vous avoir donné envie d'aller danser sur des musiques électroniques (comme nous l'avons vu, beaucoup de festivals se trouvent en Ille-et-Vilaine et la saison des beaux jours arrive). 
 
