@@ -13,8 +13,6 @@ Ce projet explore l’univers des **festivals en France**, en analysant leur ré
 
 # 📂 Arborescence  
 - `Projet.Rmd` : Rapport principal contenant l’analyse et les visualisations  
-- `data/` : Données des festivals analysés  
-- `plots/` : Graphiques et cartes générés  
 
 # ⚙️ Technologies utilisées  
 - **R & Tidyverse** pour la manipulation et l’analyse des données  
